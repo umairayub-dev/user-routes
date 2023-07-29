@@ -60,10 +60,46 @@ const getUserById = async (req, res) => {
     res.status(404).json({ error: error.message });
   }
 };
+
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedUser = await userModel.findByIdAndDelete(id);
+    if (!deletedUser) {
+      res.status(404).json({ message: "User not found" });
+    }
+    res
+      .status(200)
+      .json({ messsage: "User Deleted Successfully", user: deletedUser });
+  } catch (error) {
+    res.status(500).json({ error: error, msg: error.message });
+  }
+};
+
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const updateData = req.body;
+  try {
+    const updatedUser = await userModel.findByIdAndUpdate(id, updateData, {
+      new: true,
+    });
+    if (!updatedUser) {
+      res.status(404).json({ message: "User not found" });
+    }
+    res
+      .status(200)
+      .json({ message: "User updated successfully", user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   loginUser,
   signupUser,
   getUsers,
   getUserByEmail,
   getUserById,
+  deleteUser,
+  updateUser,
 };
