@@ -20,12 +20,13 @@ app.use("/api", userRoutes);
 app.use("/api", movieRoutes);
 app.use("/api", favoriteRoutes);
 
+const PORT = process.env.PORT || 8600
 // connect to db
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    app.listen(process.env.PORT, () => {
-      console.log("connected to db & running on port", process.env.PORT);
+    app.listen(PORT, () => {
+      console.log("connected to db & running on port", PORT);
     });
   })
   .catch((error) => {
