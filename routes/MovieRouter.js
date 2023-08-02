@@ -17,6 +17,5 @@ router.get("/movie_details", getMovieById);
 // router.get("/movies_suggestions", getSuggestions);
 // router.get("/movies_comments", getComments);
 // router.get("/movie_reviews", getReviews);
-// router.get("/movie_parental_guides", getParentalGuides);
 
 module.exports = router;

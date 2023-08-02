@@ -12,7 +12,6 @@ const {
   updateUser,
 } = require("../controllers/userController");
 
-router.post("/verify", userVerification);
 
 router.post("/login", loginUser);
 
