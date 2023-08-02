@@ -1,4 +1,3 @@
-const { userVerification } = require("../middleware/verifyToken");
 const express = require("express");
 const router = express.Router();
 
