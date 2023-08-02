@@ -3,18 +3,22 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const userRoutes = require("./routes/UserRouter");
-const cors = require("cors");
+const movieRoutes = require("./routes/MovieRouter");
+const favoriteRoutes = require("./routes/FavoriteRouter");
 
+const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
+app.use(cors());
 
-app.use("/api/", userRoutes);
+app.use("/api", userRoutes);
+app.use("/api", movieRoutes);
+app.use("/api", favoriteRoutes);
 
 // connect to db
 mongoose
