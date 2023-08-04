@@ -103,38 +103,20 @@ const signupUser = async (req, res) => {
   }
 };
 
-const getUsers = async (req, res) => {
+const getProfile = async (req, res) => {
+  const user_id = req.user._id;
   try {
-    const users = await User.find();
-    res.status(200).json({ users });
+    const user = await User.findById(user_id).select("-password");
+    res.status(200).json({ user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-const getUserByEmail = async (req, res) => {
-  const { email } = req.params;
-  try {
-    const user = await User.findOne({ email });
-    res.status(200).json({ user });
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
-};
-const getUserById = async (req, res) => {
-  const { id } = req.params;
-  try {
-    const user = await User.findOne({ _id: id });
-    res.status(200).json({ user });
-  } catch (error) {
-    res.status(404).json({ error: error.message });
-  }
-};
-
 const deleteUser = async (req, res) => {
-  const { id } = req.params;
+  const user_id = req.user._id;
   try {
-    const deletedUser = await User.findByIdAndDelete(id);
+    const deletedUser = await User.findByIdAndDelete(user_id);
     if (!deletedUser) {
       res.status(404).json({ message: "User not found" });
     }
@@ -147,15 +129,26 @@ const deleteUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const { id } = req.params;
-  const updateData = req.body;
+  const { email } = req.body;
+  const user_id = req.user._id;
+
   try {
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, {
+    // Check if the new email is already used by another user
+
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser && existingUser._id.toString() !== user_id) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    const updateData = { email: email };
+    const updatedUser = await User.findByIdAndUpdate(user_id, updateData, {
       new: true,
     });
+
     if (!updatedUser) {
-      res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
+
     res
       .status(200)
       .json({ message: "User updated successfully", user: updatedUser });
@@ -167,9 +160,7 @@ const updateUser = async (req, res) => {
 module.exports = {
   loginUser,
   signupUser,
-  getUsers,
-  getUserByEmail,
-  getUserById,
+  getProfile,
   deleteUser,
   updateUser,
 };

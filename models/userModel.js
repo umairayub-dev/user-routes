@@ -22,6 +22,10 @@ const userSchema = new Schema({
     type: String,
     default: DEFAULT_USER_IMAGE,
   },
+  joined: {
+    type: Date,
+    default: Date.now()
+  }
 });
 const userModel = mongoose.model("User", userSchema);
 
