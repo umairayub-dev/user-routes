@@ -140,6 +140,9 @@ const updateUser = async (req, res) => {
       return res.status(400).json({ message: "Email already in use" });
     }
 
+    if(!validator.isEmail(email)){
+      return res.status(400).json({ message: "Invalid email format" });
+    }
     const updateData = { email: email };
     const updatedUser = await User.findByIdAndUpdate(user_id, updateData, {
       new: true,
