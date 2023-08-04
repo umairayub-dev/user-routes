@@ -89,7 +89,7 @@ const signupUser = async (req, res) => {
     });
 
     const token = createToken(user._id);
-    return res.status(200).json({
+    return res.status(201).json({
       token,
       user: {
         _id: user._id,

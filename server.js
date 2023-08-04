@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const userRoutes = require("./routes/UserRouter");
 const movieRoutes = require("./routes/MovieRouter");
 const favoriteRoutes = require("./routes/FavoriteRouter");
+const reviewRoutes = require("./routes/ReviewRouter");
 
 const cors = require("cors");
 const app = express();
@@ -19,12 +20,13 @@ app.use(cors());
 app.use("/api", userRoutes);
 app.use("/api", movieRoutes);
 app.use("/api", favoriteRoutes);
+app.use("/api", reviewRoutes);
 
 const PORT = process.env.PORT || 8600
 // connect to db
 mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
+.connect(process.env.MONGO_URI)
+.then(() => {
     app.listen(PORT, () => {
       console.log("connected to db & running on port", PORT);
     });

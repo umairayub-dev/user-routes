@@ -56,7 +56,7 @@ const addFavorite = async (req, res) => {
       .find({ user_id })
       .sort({ createdAt: -1 });
 
-    res.status(200).json({ totalFavorites: favorite.length, favorites });
+    res.status(201).json({ totalFavorites: favorite.length, favorites });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
