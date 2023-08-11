@@ -140,15 +140,15 @@ const addMovie = async (req, res) => {
 const deleteMovie = async (req, res) => {
   try {
     const { id } = req.params;
-    const { config } = req.body;
+    const { page, limit } = req.query;
 
     const deletedMovie = await movieModel.findOneAndDelete({ _id: id });
 
     if (!deletedMovie) {
       return res.status(404).json({ error: "Movie not found" });
     }
-    const limitValue = parseInt(config.limit) || 20;
-    const pageValue = parseInt(config.page) || 1;
+    const limitValue = parseInt(limit) || 20;
+    const pageValue = parseInt(page) || 1;
     const movies = await movieModel
       .find()
       .skip((pageValue - 1) * limitValue)
