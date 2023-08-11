@@ -13,8 +13,6 @@ const movieSchema = new Schema(
     synopsis: { type: String, required: true },
     yt_trailer_code: { type: String, required: true },
     language: { type: String, required: true },
-    background_image: { type: String, required: true },
-    background_image_original: { type: String, required: true },
     small_cover_image: { type: String, required: true },
     medium_cover_image: { type: String, required: true },
     large_cover_image: { type: String, required: true },
