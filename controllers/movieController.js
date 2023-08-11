@@ -99,6 +99,7 @@ const addMovie = async (req, res) => {
       small_cover_image,
       medium_cover_image,
       large_cover_image,
+      limit,
     } = req.body;
 
     // Check if a movie with the same imdb_code already exists
@@ -128,9 +129,20 @@ const addMovie = async (req, res) => {
 
     // Save the movie to the database
     await newMovie.save();
-    const movies = await movieModel.find();
 
-    res.status(201).json({ message: "Movie added successfully", movies });
+    const limitValue = parseInt(limit) || 20;
+    const movies = await movieModel.find().limit(limitValue).select("-__v");
+
+    const totalMoviesInDB = await movieModel.countDocuments();
+
+    res.status(200).json({
+      status: "ok",
+      status_message: "Movie updated succesfully",
+      data: {
+        movie_count: totalMoviesInDB,
+        movies,
+      },
+    });
   } catch (error) {
     console.error("Error adding movie:", error);
     res.status(500).json({ error: "An error occurred while adding the movie" });
