@@ -12,9 +12,9 @@ const requireAuth = async (req, res, next) => {
   const token = authorization.split(" ")[1];
 
   try {
-    const { _id } = jwt.verify(token, process.env.SECRET);
+    const { id } = jwt.verify(token, process.env.SECRET);
 
-    req.user = await User.findOne({ _id }).select("_id");
+    req.user = await User.findOne({ _id: id }).select("_id role");
     next();
   } catch (error) {
     console.log(error);
@@ -22,4 +22,17 @@ const requireAuth = async (req, res, next) => {
   }
 };
 
-module.exports = requireAuth;
+const requireRole = (role) => {
+  return (req, res, next) => {
+    console.log(role, req.user);
+    if (!req.user || !req.user.role || req.user.role !== role) {
+      return res.status(403).json({ error: "Access forbidden" });
+    }
+    next();
+  };
+};
+
+module.exports = {
+  requireAuth,
+  requireRole,
+};

@@ -22,10 +22,16 @@ const userSchema = new Schema({
     type: String,
     default: DEFAULT_USER_IMAGE,
   },
+  role: {
+    type: String,
+    enum: ["user", "admin"],
+    default: "user",
+  },
+
   joined: {
     type: Date,
-    default: Date.now()
-  }
+    default: Date.now(),
+  },
 });
 const userModel = mongoose.model("User", userSchema);
 

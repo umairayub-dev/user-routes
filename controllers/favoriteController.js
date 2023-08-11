@@ -1,5 +1,5 @@
 const favoriteModel = require("../models/favoriteModel");
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const getFavoritesByUser = async (req, res) => {
   const user_id = req.user._id;
@@ -11,7 +11,7 @@ const getFavoritesByUser = async (req, res) => {
 
 const addFavorite = async (req, res) => {
   const {
-    _id,
+    movieId,
     imdb_code,
     title,
     slug,
@@ -33,7 +33,7 @@ const addFavorite = async (req, res) => {
   try {
     const user_id = req.user._id;
     const favorite = await favoriteModel.create({
-      _id,
+      movieId,
       imdb_code,
       title,
       slug,
@@ -52,6 +52,7 @@ const addFavorite = async (req, res) => {
       date_added,
       user_id,
     });
+
     const favorites = await favoriteModel
       .find({ user_id })
       .sort({ createdAt: -1 });
@@ -70,7 +71,7 @@ const deleteFavorite = async (req, res) => {
       return res.status(404).json({ error: "No such favorite" });
     }
 
-    const favorite = await favoriteModel.findOneAndDelete({ _id: id });
+    const favorite = await favoriteModel.findOneAndDelete({ movieId: id });
 
     if (!favorite) {
       return res.status(400).json({ error: "No such favorite" });

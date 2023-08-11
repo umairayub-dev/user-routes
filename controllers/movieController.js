@@ -80,7 +80,122 @@ const getMovieById = async (req, res) => {
       .json({ error: "Internal server error", errorMessage: error.message });
   }
 };
+
+const addMovie = async (req, res) => {
+  try {
+    const {
+      imdb_code,
+      title,
+      slug,
+      year,
+      rating,
+      runtime,
+      genres,
+      synopsis,
+      yt_trailer_code,
+      language,
+      background_image,
+      background_image_original,
+      small_cover_image,
+      medium_cover_image,
+      large_cover_image,
+    } = req.body;
+
+    // Check if a movie with the same imdb_code already exists
+    const existingMovie = await movieModel.findOne({ imdb_code });
+    if (existingMovie) {
+      return res
+        .status(400)
+        .json({ error: "Movie with the same IMDb code already exists" });
+    }
+    const newMovie = new movieModel({
+      imdb_code,
+      title,
+      slug,
+      year,
+      rating,
+      runtime,
+      genres,
+      synopsis,
+      yt_trailer_code,
+      language,
+      background_image,
+      background_image_original,
+      small_cover_image,
+      medium_cover_image,
+      large_cover_image,
+    });
+
+    // Save the movie to the database
+    await newMovie.save();
+    const movies = await movieModel.find();
+
+    res.status(201).json({ message: "Movie added successfully", movies });
+  } catch (error) {
+    console.error("Error adding movie:", error);
+    res.status(500).json({ error: "An error occurred while adding the movie" });
+  }
+};
+
+const deleteMovie = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedMovie = await movieModel.findOneAndDelete({ _id: id });
+
+    if (!deletedMovie) {
+      return res.status(404).json({ error: "Movie not found" });
+    }
+
+    const movies = await movieModel.find();
+    const totalMoviesInDB = await movieModel.countDocuments();
+
+    res.status(200).json({
+      status: "ok",
+      status_message: "Operation was succesful",
+      data: {
+        movie_count: totalMoviesInDB,
+        movies, 
+      },
+    });
+  } catch (error) {
+    console.error("Error deleting movie:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the movie" });
+  }
+};
+
+const updateMovie = async (req, res) => {
+  const { movieId, movie } = req.body;
+
+  try {
+    if (!movieId || !movie)
+      return res.status(400).json({ message: "Fields missing" });
+
+    const updatedMovie = await movieModel.findByIdAndUpdate(movieId, movie);
+
+    if (!updatedMovie) {
+      return res.status(404).json({ message: "Movie not found" });
+    }
+
+    const movies = await movieModel.find();
+
+    res.status(200).json({
+      message: "Movie updated successfully",
+      movies,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to update the movie", error: error.message });
+  }
+};
+
 module.exports = {
   getMovies,
   getMovieById,
+  addMovie,
+  deleteMovie,
+  updateMovie,
 };

@@ -2,9 +2,10 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
+const userModel = require("../models/userModel");
 
-const createToken = (id) => {
-  return jwt.sign({ _id: id }, process.env.SECRET, { expiresIn: "3d" });
+const createToken = (id, role, username) => {
+  return jwt.sign({ id, role, username }, process.env.SECRET, { expiresIn: "3d" });
 };
 // login user
 const loginUser = async (req, res) => {
@@ -26,17 +27,16 @@ const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.role, user.username);
 
     return res.status(200).json({
       message: "Login successful",
-      token,
       user: {
-        _id: user._id,
         username: user.username,
         email: user.email,
-        userImage: user.userImage,
+        userImage: user.image,
       },
+      token,
     });
   } catch (error) {
     return res.status(500).json({
@@ -88,15 +88,10 @@ const signupUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.role, user.username);
     return res.status(201).json({
+      message: "Signed up successfully",
       token,
-      user: {
-        _id: user._id,
-        username: user.username,
-        email: user.email,
-        userImage: user.userImage,
-      },
     });
   } catch (error) {
     return res.status(400).json({ error: error.message });
@@ -114,44 +109,37 @@ const getProfile = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-  const user_id = req.user._id;
+  const { id } = req.params;
   try {
-    const deletedUser = await User.findByIdAndDelete(user_id);
+    const deletedUser = await User.findByIdAndDelete(id);
     if (!deletedUser) {
       res.status(404).json({ message: "User not found" });
     }
-    res
-      .status(200)
-      .json({ messsage: "User Deleted Successfully", user: deletedUser });
+    const users = await User.find();
+    res.status(200).json({ messsage: "User Deleted Successfully", users });
   } catch (error) {
     res.status(500).json({ error: error, msg: error.message });
   }
 };
 
 const updateUser = async (req, res) => {
-  const { email } = req.body;
+  const { userImage } = req.body;
   const user_id = req.user._id;
 
   try {
-    // Check if the new email is already used by another user
-
-    const existingUser = await User.findOne({ email: email });
-    if (existingUser && existingUser._id.toString() !== user_id) {
-      return res.status(400).json({ message: "Email already in use" });
-    }
-
-    if(!validator.isEmail(email)){
-      return res.status(400).json({ message: "Invalid email format" });
-    }
-    const updateData = { email: email };
-    const updatedUser = await User.findByIdAndUpdate(user_id, updateData, {
-      new: true,
-    });
+    const updatedUser = await User.findByIdAndUpdate(
+      user_id,
+      { userImage },
+      {
+        new: true,
+      }
+    ).select("-password");
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    console.log(updatedUser);
     res
       .status(200)
       .json({ message: "User updated successfully", user: updatedUser });
@@ -160,10 +148,27 @@ const updateUser = async (req, res) => {
   }
 };
 
+const getUsers = async (req, res) => {
+  try {
+    const users = await userModel.find().select("-password");
+
+    if (users) {
+      res.status(200).json({
+        users,
+      });
+    } else {
+      res.status(404).json({
+        error: "No users found",
+      });
+    }
+  } catch (error) {}
+};
+
 module.exports = {
   loginUser,
   signupUser,
   getProfile,
   deleteUser,
   updateUser,
+  getUsers,
 };
