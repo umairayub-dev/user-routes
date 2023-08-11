@@ -140,22 +140,29 @@ const addMovie = async (req, res) => {
 const deleteMovie = async (req, res) => {
   try {
     const { id } = req.params;
+    const { config } = req.body;
 
     const deletedMovie = await movieModel.findOneAndDelete({ _id: id });
 
     if (!deletedMovie) {
       return res.status(404).json({ error: "Movie not found" });
     }
+    const limitValue = parseInt(config.limit) || 20;
+    const pageValue = parseInt(config.page) || 1;
+    const movies = await movieModel
+      .find()
+      .skip((pageValue - 1) * limitValue)
+      .limit(limitValue)
+      .select("-__v");
 
-    const movies = await movieModel.find();
     const totalMoviesInDB = await movieModel.countDocuments();
 
     res.status(200).json({
       status: "ok",
-      status_message: "Operation was succesful",
+      status_message: "Movie deleted succesfully",
       data: {
         movie_count: totalMoviesInDB,
-        movies, 
+        movies,
       },
     });
   } catch (error) {
@@ -167,7 +174,7 @@ const deleteMovie = async (req, res) => {
 };
 
 const updateMovie = async (req, res) => {
-  const { movieId, movie } = req.body;
+  const { movieId, movie, config } = req.body;
 
   try {
     if (!movieId || !movie)
@@ -179,11 +186,23 @@ const updateMovie = async (req, res) => {
       return res.status(404).json({ message: "Movie not found" });
     }
 
-    const movies = await movieModel.find();
+    const limitValue = parseInt(config.limit) || 20;
+    const pageValue = parseInt(config.page) || 1;
+    const movies = await movieModel
+      .find()
+      .skip((pageValue - 1) * limitValue)
+      .limit(limitValue)
+      .select("-__v");
+
+    const totalMoviesInDB = await movieModel.countDocuments();
 
     res.status(200).json({
-      message: "Movie updated successfully",
-      movies,
+      status: "ok",
+      status_message: "Movie updated succesfully",
+      data: {
+        movie_count: totalMoviesInDB,
+        movies,
+      },
     });
   } catch (error) {
     res
