@@ -6,18 +6,13 @@ const userRoutes = require("./routes/UserRouter");
 const movieRoutes = require("./routes/MovieRouter");
 const favoriteRoutes = require("./routes/FavoriteRouter");
 const reviewRoutes = require("./routes/ReviewRouter");
-const dashboard = require('./routes/Dashboard')
+const dashboard = require("./routes/Dashboard");
 
 const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://mflixi.netlify.app/",
-    credentials: "true",
-  })
-);
+app.use(cors());
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
