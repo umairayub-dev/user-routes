@@ -14,7 +14,7 @@ const app = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "https://victorious-lion-clothes.cyclic.cloud/",
+    origin: "https://mflixi.netlify.app/",
     credentials: "true",
   })
 );
